@@ -2,17 +2,26 @@ import React, { Component } from 'react';
 import { ArticleList } from './ArticleList/ArticleList';
 import axios from 'axios';
 
-import ContentLoader, { Facebook } from 'react-content-loader';
+import ContentLoader from 'react-content-loader';
 
-const MyLoader = () => (
-  <ContentLoader viewBox="0 0 380 70">
-    {/* Only SVG shapes */}    
-    <rect x="0" y="0" rx="5" ry="5" width="70" height="70" />
-    <rect x="80" y="17" rx="4" ry="4" width="300" height="13" />
-    <rect x="80" y="40" rx="3" ry="3" width="250" height="10" />
+const MyLoader = props => (
+  <ContentLoader
+    speed={2}
+    width={400}
+    height={160}
+    viewBox="0 0 400 160"
+    backgroundColor="#c2c2c2"
+    foregroundColor="#ecebeb"
+    {...props}
+  >
+    <rect x="48" y="8" rx="3" ry="3" width="88" height="6" />
+    <rect x="48" y="26" rx="3" ry="3" width="52" height="6" />
+    <rect x="0" y="56" rx="3" ry="3" width="410" height="6" />
+    <rect x="0" y="72" rx="3" ry="3" width="380" height="6" />
+    <rect x="0" y="88" rx="3" ry="3" width="178" height="6" />
+    <circle cx="20" cy="20" r="20" />
   </ContentLoader>
 );
-const MyFacebookLoader = () => <Facebook />;
 
 axios.defaults.baseURL = 'https://hn.algolia.com/api/v1';
 
@@ -20,15 +29,20 @@ export class App extends Component {
   state = {
     articles: [],
     isLoading: false,
+    error: null,
   };
 
   async componentDidMount() {
     this.setState({ isLoading: true });
-    const response = await axios.get('/search?query=react');
-    this.setState({
-      articles: response.data.hits,
-      isLoading: false,
-    });
+
+    try {
+      const response = await axios.get('/search?query=react');
+      this.setState({ articles: response.data.hits });
+    } catch (error) {
+      this.setState({ error });
+    } finally {
+      this.setState({ isLoading: false });
+    }
   }
 
   render() {
@@ -37,7 +51,7 @@ export class App extends Component {
       <div>
         {isLoading ? (
           <p>
-            <MyFacebookLoader />
+            <MyLoader />
             Loading...
           </p>
         ) : (
